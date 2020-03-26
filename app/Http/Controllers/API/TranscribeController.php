@@ -161,4 +161,15 @@ class TranscribeController extends BaseController
         return;
     }
 
+    public function transcribedResponse()
+    {
+        $transcribe = TranscribeInfo::all();
+        return response()->json($transcribe);
+    }
+
+    public function transcribedResponseById($id)
+    {
+        $transcribe = TranscribeInfo::find($id);
+        return response()->json($transcribe);  
+    }
 }

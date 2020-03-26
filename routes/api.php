@@ -21,3 +21,11 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
 Route::post('/transcribe',
     ['uses' => 'API\TranscribeController@transcribeApiCall']
 );
+
+Route::get('/transcribe',
+    ['uses' => 'API\TranscribeController@transcribedResponse']
+);
+
+Route::get('/transcribe/{id}',
+    ['uses' => 'API\TranscribeController@transcribedResponseById']
+);
