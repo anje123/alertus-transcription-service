@@ -25,7 +25,7 @@ class TranscribeController extends BaseController
     { 
         $this->path = public_path('audio-contents/');
         $this->apikey = config('cloudconvert.api_key');
-        $this->bucket_name = env('GOOGLE_CLOUD_STORAGE_BUCKET', 'femmy2');
+        $this->bucket_name = env('GOOGLE_CLOUD_STORAGE_BUCKET', '');
         $this->processed = 'processed';
         $this->processing = 'processing';
         $this->not_processed = 'not_processed';
