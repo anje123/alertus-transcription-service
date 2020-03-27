@@ -13,10 +13,11 @@ HOW TO SETUP:
 * Please Note the CloudConvert Platform is useful for converting the audio file to FLAC before transcription for more efficiency. check https://cloud.google.com/speech-to-text/docs/encoding for more info
 * clone this repo
 * composer install
+* php artisan migrate, to migrate table
 * cp .env.example .env fill the Keys in the .env accordingly with the API keys generated above
 
 ## RESTful URLs
-* To transcribe a URL:
+* To transcribe an audio URL:
     * POST /api/transcribe
     field: recording_sid,recording_url
 * To get all Transcription:
