@@ -15,10 +15,11 @@ class CreateTranscribeInfosTable extends Migration
     {
         Schema::create('transcribe_infos', function (Blueprint $table) {
             $table->increments('id');
-            $table->string('start_time');
-            $table->string('end_time');
-            $table->string('transcription');
+            $table->string('start_time')->nullable();
+            $table->string('end_time')->nullable();
+            $table->string('transcription')->nullable();
             $table->string('recording_sid');
+            $table->string('recording_url');
             $table->string('transcribe_status')->default('not_processed');
             $table->timestamps();
         });

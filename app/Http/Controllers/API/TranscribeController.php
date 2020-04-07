@@ -97,9 +97,8 @@ class TranscribeController extends BaseController
                 $client->close();
             }
        
-        $this->updateTranscribeStatusWhenTranscribed($request,$result_str,$start_time, $end_time);
-        $this->deleteFile($_filename);
-
+        Log::info($result_str);
+        return;
     }
 
    

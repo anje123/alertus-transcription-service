@@ -9,13 +9,13 @@ use Google\Cloud\Core\ExponentialBackoff;
 use GuzzleHttp\Exception\ClientException;
 use Illuminate\Filesystem\Filesystem;
 use Illuminate\Support\Facades\Log;
-use App\QuestionResponse;
-use App\ResponseTranscription;
 use App\TranscribeInfo;
 use Google\Cloud\Speech\V1\SpeechClient;
 use Google\Cloud\Speech\V1\RecognitionAudio;
 use Google\Cloud\Speech\V1\RecognitionConfig;
 use Google\Cloud\Speech\V1\RecognitionConfig\AudioEncoding;
+use PhpAmqpLib\Connection\AMQPStreamConnection;
+use PhpAmqpLib\Message\AMQPMessage;
 
 class TranscribeController extends Controller
 {
@@ -46,24 +46,50 @@ class TranscribeController extends Controller
         return $speech;
     }
 
+    public function test()
+    {
+        $connection = new AMQPStreamConnection('localhost', 5672, 'guest', 'guest');
+        $channel = $connection->channel();
+        $channel->queue_declare('transcribe_queue', false, true, false, false);
+        $callback = function($msg) {
+            //Convert the data to array
+            $data = json_decode($msg->body, true);
+            Log::info($data);
+            foreach ($data as $sdata) {
+                TranscribeInfo::create([
+                    'recording_url' => $sdata['response'],
+                    'recording_sid' => $sdata['recording_sid']
+                ]);
+            }
+
+     
+            echo "Finished Processing\n";
+        };
+        $channel->basic_consume('transcribe_queue', '', false, false, false, false, $callback);
+
+        //Listen to requests
+        while (count($channel->callbacks)) {
+            $channel->wait();
+        }
+
+    }
+
     public function transcribe()
     {
-        $questionResponse = QuestionResponse::where('transcribe_status',$this->not_processed)->first();
+        $questionResponse = TranscribeInfo::where('transcribe_status',$this->not_processed)->first();
         if(!$questionResponse){
             return;
         }
         $this->transcribeFromUrl($questionResponse);
     }
 
-  
-
     public function transcribeFromUrl($questionResponse)
     {
        $start_time = date("h:i:sa");
        Log::info($start_time);
-       $this->updateTranscribeStatusWhenTranscribing($questionResponse);
-       $audio = $questionResponse->response . '.mp3';
+       $audio = $questionResponse->recording_url;
        $_filename = $questionResponse->recording_sid;
+       Log::info($questionResponse->recording_url);
        $audioFile = $this->convertFile($audio, $_filename);
 
         // change these variables if necessary
@@ -106,18 +132,12 @@ class TranscribeController extends Controller
             }finally {
                 $client->close();
             }
-
-        $questionResponse->responseTranscription()->create(
-            ['transcription' => $result_str]
-        );
        
-        $this->updateTranscribeStatusWhenTranscribed($questionResponse,$start_time, $end_time);
+        $this->updateTranscribeStatusWhenTranscribed($result_str,$questionResponse,$start_time, $end_time);
         $this->deleteFile($_filename);
         printf($result_str);
 
     }
-
-   
 
     public static function getFilename($name)
     {
@@ -162,22 +182,22 @@ class TranscribeController extends Controller
         return;
     }
 
-    public function updateTranscribeStatusWhenTranscribing($questionResponse)
+ 
+    public function updateTranscribeStatusWhenTranscribed($result_str, $questionResponse,$start_time, $end_time)
     {
-        $questionResponse->transcribe_status = $this->processing;
-        $questionResponse->save();
-    }
-    public function updateTranscribeStatusWhenTranscribed($questionResponse,$start_time, $end_time)
-    {
-        TranscribeInfo::create([
-            'start_time' => $start_time,
-            'end_time' => $end_time,
-            'status' => $this->processed,
-            'recording_sid' => $questionResponse->recording_sid
-        ]);
         $questionResponse->transcribe_status = $this->processed;
+        $questionResponse->transcription = $result_str;
+        $questionResponse->start_time = $start_time;
+        $questionResponse->end_time = $end_time;
         $questionResponse->save();
+        Log::info('Transcription start-time: '.$start_time);
+        Log::info('Transcription end-time: '.$end_time);
+        Log::info('Transcription: '.$result_str);
+        Log::info('Transcription status: '.$this->processed);
+
     }
+
+
     public function updateTranscribingStatusIfFailed($questionResponse)
     {
         $questionResponse->transcribe_status = $this->failed;

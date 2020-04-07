@@ -26,7 +26,9 @@ class Kernel extends ConsoleKernel
     {
         // $schedule->command('inspire')
         //          ->hourly();
+       // $schedule->call('App\Http\Controllers\TranscribeController@test')->everyMinute();
         $schedule->call('App\Http\Controllers\TranscribeController@transcribe')->everyMinute();
+
 
     }
 
