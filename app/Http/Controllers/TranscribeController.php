@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use RobbieP\CloudConvertLaravel\CloudConvert;
-use Google\Cloud\Storage\StorageClient;
 use Google\Cloud\Core\ExponentialBackoff;
 use GuzzleHttp\Exception\ClientException;
 use Illuminate\Filesystem\Filesystem;
@@ -14,8 +13,6 @@ use Google\Cloud\Speech\V1\SpeechClient;
 use Google\Cloud\Speech\V1\RecognitionAudio;
 use Google\Cloud\Speech\V1\RecognitionConfig;
 use Google\Cloud\Speech\V1\RecognitionConfig\AudioEncoding;
-use PhpAmqpLib\Connection\AMQPStreamConnection;
-use PhpAmqpLib\Message\AMQPMessage;
 
 class TranscribeController extends Controller
 {
@@ -45,51 +42,18 @@ class TranscribeController extends Controller
         ]);
         return $speech;
     }
+    
 
-    public function test()
-    {
-        $connection = new AMQPStreamConnection('localhost', 5672, 'guest', 'guest');
-        $channel = $connection->channel();
-        $channel->queue_declare('transcribe_queue', false, true, false, false);
-        $callback = function($msg) {
-            //Convert the data to array
-            $data = json_decode($msg->body, true);
-            Log::info($data);
-            foreach ($data as $sdata) {
-                TranscribeInfo::create([
-                    'recording_url' => $sdata['response'],
-                    'recording_sid' => $sdata['recording_sid']
-                ]);
-            }
-
-     
-            echo "Finished Processing\n";
-        };
-        $channel->basic_consume('transcribe_queue', '', false, false, false, false, $callback);
-
-        //Listen to requests
-        while (count($channel->callbacks)) {
-            $channel->wait();
-        }
-
-    }
-
-    public function transcribe()
+    public function transcribeAudio($questionResponse)
     {
         $questionResponse = TranscribeInfo::where('transcribe_status',$this->not_processed)->first();
+
         if(!$questionResponse){
             return;
         }
-        $this->transcribeFromUrl($questionResponse);
-    }
-
-    public function transcribeFromUrl($questionResponse)
-    {
        $start_time = date("h:i:sa");
-       Log::info($start_time);
        $audio = $questionResponse->recording_url;
        $_filename = $questionResponse->recording_sid;
-       Log::info($questionResponse->recording_url);
        $audioFile = $this->convertFile($audio, $_filename);
 
         // change these variables if necessary
@@ -144,6 +108,7 @@ class TranscribeController extends Controller
         return $name.".flac";
     } 
 
+
     public function convertFile($audio,$_filename)
     {
         $cloudconvert = new CloudConvert([
@@ -168,6 +133,7 @@ class TranscribeController extends Controller
          $file_path = $this->path.$filename;
          return $file_path;
     }
+
 
     public function deleteFile($filename)
     {

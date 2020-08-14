@@ -17,11 +17,13 @@ HOW TO SETUP:
 * cp .env.example .env fill the Keys in the .env accordingly with the API keys generated above
 
 ## RESTful URLs
-* To transcribe an audio URL:
-    * POST /api/transcribe
-    field: recording_sid,recording_url
+
 * To get all Transcription:
     * GET /api/transcribe
+
+* To get all Transcription:
+    * GET /api/transcribe/{SessionId}
+       
 * To get One Transcription By Id:
     * GET /api/transcribe/{id}
 ## HTTP Verbs

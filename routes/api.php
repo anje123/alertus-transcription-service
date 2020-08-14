@@ -18,9 +18,7 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
 });
 
 
-Route::post('/transcribe',
-    ['uses' => 'API\TranscribeController@transcribeApiCall']
-);
+
 
 Route::get('/transcribe',
     ['uses' => 'API\TranscribeController@transcribedResponse']
@@ -28,4 +26,8 @@ Route::get('/transcribe',
 
 Route::get('/transcribe/{id}',
     ['uses' => 'API\TranscribeController@transcribedResponseById']
+);
+
+Route::get('/transcribe/{SessionId}',
+    ['uses' => 'API\TranscribeController@transcribedResponseBySessionId']
 );
