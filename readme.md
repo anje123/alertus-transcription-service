@@ -18,6 +18,7 @@ HOW TO SETUP:
 
 ## RESTful URLs
 
+```
 * To get all Transcription:
     * GET /api/transcribe
 
@@ -26,6 +27,8 @@ HOW TO SETUP:
        
 * To get One Transcription By Id:
     * GET /api/transcribe/{id}
+
+```
 ## HTTP Verbs
 
 | HTTP METHOD | POST            | GET       | PUT         | DELETE |
