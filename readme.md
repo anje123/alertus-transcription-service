@@ -22,7 +22,7 @@ HOW TO SETUP:
 * To get all Transcription:
     * GET /api/transcribe
 
-* To get all Transcription:
+* To get all Transcription By SessionId:
     * GET /api/transcribe/{SessionId}
        
 * To get One Transcription By Id:
