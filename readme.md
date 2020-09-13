@@ -20,7 +20,7 @@ HOW TO SETUP:
 
 ```
 * To get all Transcription:
-    * GET /api/transcribe
+    * GET /api/transcribeResponses
 
 * To get all Transcription By SessionId:
     * GET /api/transcribe/Session/{SessionId}

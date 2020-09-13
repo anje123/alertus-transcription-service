@@ -37,7 +37,7 @@ class TranscribeController extends Controller
         return $speech;
     }
     
-    public function getTranscribedResponse()
+    public function getAllTranscribedResponses()
     {
         $transcribeData = TranscribeInfo::all();
         return response()->json($transcribeData, 200);
