@@ -19,6 +19,7 @@ class CreateTranscribeInfosTable extends Migration
             $table->string('end_time')->nullable();
             $table->string('transcription')->nullable();
             $table->string('recording_sid');
+            $table->string('session_sid');
             $table->string('recording_url');
             $table->string('transcribe_status')->default('not_processed');
             $table->timestamps();

@@ -51,7 +51,7 @@ class TranscribeController extends Controller
 
     public function getTranscribedResponseBySessionId($SessionId)
     {
-        $transcribeData = TranscribeInfo::where('recording_id', $SessionId);
+        $transcribeData = TranscribeInfo::where('session_sid', $SessionId)->get();
         return response()->json($transcribeData, 200); 
     } 
 
