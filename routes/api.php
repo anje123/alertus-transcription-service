@@ -17,8 +17,12 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
     return $request->user();
 });
 
+Route::post('/user/create',[ 'uses' => 'API\UserController@create']);
+
 Route::group(['middleware' => ['auth:api']], function () {
-    
+Route::post('/user/update/token',[ 'uses' => 'API\UserController@updateToken']);
+Route::post('/user/update',[ 'uses' => 'API\UserController@updateUser']);   
+
 Route::get('/transcribe',
     ['uses' => 'API\TranscriptionController@transcribedResponse']
 );

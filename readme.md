@@ -19,6 +19,17 @@ HOW TO SETUP:
 ## RESTful URLs
 
 ```
+* To register a user:
+    * POST /api/user/create
+
+
+ Authorization Bearer Token needed to access this endpoints register first
+ * To update a user info:
+    * POST /api/user/update
+
+* To update or refresh a user auth Token:
+    * POST /api/user/update
+    
 * To get all Transcription:
     * GET /api/transcribeResponses
 
