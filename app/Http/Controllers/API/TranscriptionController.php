@@ -55,6 +55,12 @@ class TranscribeController extends Controller
         return response()->json($transcribeData, 200); 
     } 
 
+    public function getTranscribedResponseByRecordingId($RecordingId)
+    {
+        $transcribeData = TranscribeInfo::where('recording_sid', $RecordingId)->get();
+        return response()->json($transcribeData, 200); 
+    }
+
     public function transcribedResponse()
     {
         $questionResponse = TranscribeInfo::where('transcribe_status',$this->not_processed)->first();

@@ -33,9 +33,12 @@ HOW TO SETUP:
 * To get all Transcription:
     * GET /api/transcribeResponses
 
-* To get all Transcription By SessionId:
+* To get all Transcription for a Session:
     * GET /api/transcribe/Session/{SessionId}
        
+* To get all Transcription for a Recording:
+    * GET /api/transcribe/Recording/{RecordingId}
+
 * To get One Transcription By Id:
     * GET /api/transcribe/{id}
 

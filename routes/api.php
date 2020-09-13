@@ -35,6 +35,10 @@ Route::get('/transcribe/Session/{id}',
     ['uses' => 'API\TranscriptionController@getTranscribedResponseBySessionId']
 );
 
+Route::get('/transcribe/Recording/{id}',
+    ['uses' => 'API\TranscriptionController@getTranscribedResponseByRecordingId']
+);
+
 Route::get('/transcribe/{id}',
     ['uses' => 'API\TranscriptionController@getTranscribedResponseById']
 );
