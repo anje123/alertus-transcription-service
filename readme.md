@@ -22,8 +22,8 @@ HOW TO SETUP:
 * To register a user:
     * POST /api/user/create
 
+  Authorization Bearer Token is needed to access the next endpoints,  register first !!
 
- Authorization Bearer Token needed to access this endpoints register first
  * To update a user info:
     * PUT /api/user/update
 
