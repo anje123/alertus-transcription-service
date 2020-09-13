@@ -24,7 +24,7 @@ Route::put('/user/update/token',[ 'uses' => 'API\UserController@updateToken']);
 Route::put('/user/update',[ 'uses' => 'API\UserController@updateUser']);   
 
 Route::get('/transcribe',
-    ['uses' => 'API\TranscriptionController@transcribedResponse']
+    ['uses' => 'API\TranscriptionController@transcribeResponse']
 );
 
 Route::post('/transcribeFromUrl',
