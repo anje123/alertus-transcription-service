@@ -17,17 +17,22 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
     return $request->user();
 });
 
-
-
-
+Route::group(['middleware' => ['auth:api']], function () {
+    
 Route::get('/transcribe',
-    ['uses' => 'API\TranscribeController@transcribedResponse']
+    ['uses' => 'API\TranscriptionController@transcribedResponse']
+);
+
+Route::post('/transcribeFromUrl',
+    ['uses' => 'API\TranscriptionController@transcribeResponseFromUrl']
+);
+
+Route::get('/transcribe/Session/{id}',
+    ['uses' => 'API\TranscriptionController@getTranscribedResponseBySessionId']
 );
 
 Route::get('/transcribe/{id}',
-    ['uses' => 'API\TranscribeController@transcribedResponseById']
+    ['uses' => 'API\TranscriptionController@getTranscribedResponseById']
 );
 
-Route::get('/transcribe/{SessionId}',
-    ['uses' => 'API\TranscribeController@transcribedResponseBySessionId']
-);
+});

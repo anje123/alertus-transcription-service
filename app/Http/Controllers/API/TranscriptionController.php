@@ -1,13 +1,10 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\API;
 
 use Illuminate\Http\Request;
 use RobbieP\CloudConvertLaravel\CloudConvert;
 use Google\Cloud\Core\ExponentialBackoff;
-use GuzzleHttp\Exception\ClientException;
-use Illuminate\Filesystem\Filesystem;
-use Illuminate\Support\Facades\Log;
 use App\TranscribeInfo;
 use Google\Cloud\Speech\V1\SpeechClient;
 use Google\Cloud\Speech\V1\RecognitionAudio;
@@ -21,7 +18,7 @@ class TranscribeController extends Controller
     { 
         $this->path = public_path('audio-contents/');
         $this->apikey = config('cloudconvert.api_key');
-        $this->bucket_name = env('GOOGLE_CLOUD_STORAGE_BUCKET', 'femmy2');
+        $this->bucket_name = env('GOOGLE_CLOUD_STORAGE_BUCKET', '');
         $this->processed = 'processed';
         $this->processing = 'processing';
         $this->not_processed = 'not_processed';
@@ -29,10 +26,7 @@ class TranscribeController extends Controller
 
     }
 
-    /**
-     * Initializes the SpeechClient
-     * @return object \SpeechClient
-     */
+
     public function createInstance()
     {
         $project_id = env('PROJECT_ID');
@@ -43,14 +37,32 @@ class TranscribeController extends Controller
         return $speech;
     }
     
+    public function getTranscribedResponse()
+    {
+        $transcribeData = TranscribeInfo::all();
+        return response()->json($transcribeData, 200);
+    }
 
-    public function transcribeAudio($questionResponse)
+    public function getTranscribedResponseById($id)
+    {
+        $transcribeData = TranscribeInfo::find($id);
+        return response()->json($transcribeData, 200);  
+    }
+
+    public function getTranscribedResponseBySessionId($SessionId)
+    {
+        $transcribeData = TranscribeInfo::where('recording_id', $SessionId);
+        return response()->json($transcribeData, 200); 
+    } 
+
+    public function transcribedResponse()
     {
         $questionResponse = TranscribeInfo::where('transcribe_status',$this->not_processed)->first();
 
         if(!$questionResponse){
             return;
         }
+
        $start_time = date("h:i:sa");
        $audio = $questionResponse->recording_url;
        $_filename = $questionResponse->recording_sid;
@@ -85,8 +97,6 @@ class TranscribeController extends Controller
                 $mostLikely = $alternatives[0];
                 $transcript = $mostLikely->getTranscript();
                 $confidence = $mostLikely->getConfidence();
-                printf('Transcript: twilio %s' . PHP_EOL, $transcript);
-                printf('Confidence: %s' . PHP_EOL, $confidence);
                 $result_str .= $transcript;
                 $end_time = date("h:i:sa");
             } 
@@ -99,7 +109,62 @@ class TranscribeController extends Controller
        
         $this->updateTranscribeStatusWhenTranscribed($result_str,$questionResponse,$start_time, $end_time);
         $this->deleteFile($_filename);
-        printf($result_str);
+
+    }
+
+    public function transcribeResponseFromUrl(Request $request)
+    {
+        $questionResponse = $request->audioUrl;
+
+        if(!$questionResponse){
+            return;
+        }
+       $start_time = date("h:i:sa");
+       $audio = $questionResponse->recording_url;
+       $_filename = Hash::make($request->audioUrl);
+       $audioFile = $this->convertFile($audio, $_filename);
+
+        // change these variables if necessary
+        $encoding = AudioEncoding::FLAC;
+        $sampleRateHertz = 44100;
+        $languageCode = 'en-NG';
+
+        // get contents of a file into a string
+        $content = file_get_contents($audioFile);
+
+        // set string as audio content
+        $audio = (new RecognitionAudio())
+            ->setContent($content);
+
+        // set config
+        $config = (new RecognitionConfig())
+            ->setEncoding($encoding)
+            ->setSampleRateHertz($sampleRateHertz)
+            ->setLanguageCode($languageCode);
+
+        // create the speech client
+        $client = new SpeechClient();
+        $result_str = '';
+
+        try {
+            $response = $client->recognize($config, $audio);
+            foreach ($response->getResults() as $result) {
+                $alternatives = $result->getAlternatives();
+                $mostLikely = $alternatives[0];
+                $transcript = $mostLikely->getTranscript();
+                $confidence = $mostLikely->getConfidence();
+                $result_str .= $transcript;
+                $end_time = date("h:i:sa");
+            } 
+            } catch(Exception $e){
+                $this->updateTranscribingStatusIfFailed($questionResponse);
+
+            }finally {
+                $client->close();
+            }
+       
+        $this->updateTranscribeStatusWhenTranscribed($result_str,$questionResponse,$start_time, $end_time);
+        $this->deleteFile($_filename);
 
     }
 
@@ -156,10 +221,6 @@ class TranscribeController extends Controller
         $questionResponse->start_time = $start_time;
         $questionResponse->end_time = $end_time;
         $questionResponse->save();
-        Log::info('Transcription start-time: '.$start_time);
-        Log::info('Transcription end-time: '.$end_time);
-        Log::info('Transcription: '.$result_str);
-        Log::info('Transcription status: '.$this->processed);
 
     }
 
@@ -169,5 +230,4 @@ class TranscribeController extends Controller
         $questionResponse->transcribe_status = $this->failed;
         $questionResponse->save();
     }
-
 }

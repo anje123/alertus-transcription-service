@@ -23,10 +23,13 @@ HOW TO SETUP:
     * GET /api/transcribe
 
 * To get all Transcription By SessionId:
-    * GET /api/transcribe/{SessionId}
+    * GET /api/transcribe/Session/{SessionId}
        
 * To get One Transcription By Id:
     * GET /api/transcribe/{id}
+
+* To transcribe audio from url:
+    * POST /api/transcribeFromUrl/{id}
 
 ```
 ## HTTP Verbs
