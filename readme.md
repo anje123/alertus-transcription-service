@@ -29,7 +29,7 @@ HOW TO SETUP:
     * GET /api/transcribe/{id}
 
 * To transcribe audio from url:
-    * POST /api/transcribeFromUrl/{id}
+    * POST /api/transcribeFromUrl
 
 ```
 ## HTTP Verbs
