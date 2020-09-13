@@ -20,8 +20,8 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
 Route::post('/user/create',[ 'uses' => 'API\UserController@create']);
 
 Route::group(['middleware' => ['auth:api']], function () {
-Route::post('/user/update/token',[ 'uses' => 'API\UserController@updateToken']);
-Route::post('/user/update',[ 'uses' => 'API\UserController@updateUser']);   
+Route::put('/user/update/token',[ 'uses' => 'API\UserController@updateToken']);
+Route::put('/user/update',[ 'uses' => 'API\UserController@updateUser']);   
 
 Route::get('/transcribe',
     ['uses' => 'API\TranscriptionController@transcribedResponse']

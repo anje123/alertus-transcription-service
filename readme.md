@@ -25,11 +25,11 @@ HOW TO SETUP:
 
  Authorization Bearer Token needed to access this endpoints register first
  * To update a user info:
-    * POST /api/user/update
+    * PUT /api/user/update
 
 * To update or refresh a user auth Token:
-    * POST /api/user/update
-    
+    * PUT /api/user/update
+
 * To get all Transcription:
     * GET /api/transcribeResponses
 
